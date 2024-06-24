@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: user-app-deployment
+  labels:
+    app: user-app-deployment-label
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: user-app-pod
+  template:
+    metadata:
+      labels:
+        app: user-app-pod
+    spec:
+      containers:
+      - name: user-app-container-name
+        image: hbc08/k8s-user-app:latest
+        ports:
+        - containerPort: 8080
+        env:
+        - name: PORT
+          value: "8080"
+        - name: VERSION
+          value: "2.1111"
+        - name: AUTH_SERVICE_URL
+          value: "http://auth-app-service.default.svc.cluster.local:8124"
+        resources:
+          limits:
+            cpu: "1"
+            memory: "512Mi"

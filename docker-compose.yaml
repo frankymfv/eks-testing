@@ -1,0 +1,35 @@
+version: '3.8'
+
+services:
+  user-service:
+    build:
+      context: ./user-app
+      dockerfile: Dockerfile
+    environment:
+      - PORT=8080
+      - VERSION=1.0
+      - AUTH_SERVICE_URL=http://auth-service:8081
+    ports:
+      - "8080:8080"
+    depends_on:
+      - auth-service
+
+  auth-service:
+    build:
+      context: ./auth-app
+      dockerfile: Dockerfile
+    environment:
+      - PORT=8081
+      - VERSION=1.0
+    ports:
+      - "8081:8081"
+
+  hello-service:
+    build:
+      context: ./helloworld
+      dockerfile: Dockerfile
+    environment:
+      - PORT=8889
+      - VERSION=2.0
+    ports:
+      - "8899:8889"
