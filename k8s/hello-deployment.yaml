@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: helloworld-app-deployment
+  labels:
+    app: helloworld-app-pod
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: helloworld-app-pod
+  template:
+    metadata:
+      labels:
+        app: helloworld-app-pod
+    spec:
+      containers:
+      - name: helloworld-app-container-name
+        image: hbc08/k8s-helloworld:latest
+        ports:
+        - containerPort: 8888
+        env:
+        - name: PORT
+          value: "8888"
+        - name: VERSION
+          value: "3.3"
+        resources:
+          limits:
+            cpu: "1"
+            memory: "512Mi"

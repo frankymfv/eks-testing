@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: auth-app-deployment
+  labels:
+    app: auth-app-pod
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: auth-app-pod
+  template:
+    metadata:
+      labels:
+        app: auth-app-pod
+    spec:
+      containers:
+      - name: auth-app-container-name
+        image: hbc08/k8s-auth-app:latest
+        ports:
+        - containerPort: 8765
+        env:
+        - name: PORT
+          value: "8765"
+        - name: VERSION
+          value: "3.0"
+        resources:
+          limits:
+            cpu: "1"
+            memory: "512Mi"
