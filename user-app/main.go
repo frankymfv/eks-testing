@@ -2,7 +2,6 @@
 package main
 
 import (
-	"bytes"
 	"encoding/json"
 	"fmt"
 	"net"
@@ -71,37 +70,36 @@ func createUser(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(response)
 }
 
-func loginUser(authServiceURL string) http.HandlerFunc {
+func loginUser(helloWorldServiceURL string) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var user User
 		if err := json.NewDecoder(r.Body).Decode(&user); err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
-		fmt.Printf("User get token: %+v", user)
-		body, err := json.Marshal(user)
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-
-		authEndpoint := fmt.Sprintf("%s/authenticate", authServiceURL)
-		fmt.Printf("Auth endpoint: %s\n", authEndpoint)
-		fmt.Printf("Body: %s\n", body)
-		resp, err := http.Post(authEndpoint, "application/json", bytes.NewBuffer(body))
+		fmt.Printf("User requesting info from helloworld service: %+v", user)
+		
+		// Call helloworld service instead of auth service
+		helloEndpoint := fmt.Sprintf("%s/", helloWorldServiceURL)
+		fmt.Printf("Hello World endpoint: %s\n", helloEndpoint)
+		
+		resp, err := http.Get(helloEndpoint)
 		if err != nil || resp.StatusCode != http.StatusOK {
-			http.Error(w, "Authentication failed", http.StatusUnauthorized)
+			http.Error(w, "Failed to get info from helloworld service", http.StatusInternalServerError)
 			return
 		}
 
-		var authResponse Response
-		if err := json.NewDecoder(resp.Body).Decode(&authResponse); err != nil {
+		var helloResponse InfoResponse
+		if err := json.NewDecoder(resp.Body).Decode(&helloResponse); err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
 
 		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(authResponse)
+		response := Response{
+			Message: fmt.Sprintf("Successfully connected to helloworld service. Hostname: %s", helloResponse.Hostname),
+		}
+		json.NewEncoder(w).Encode(response)
 	}
 }
 
@@ -130,10 +128,10 @@ func main() {
 
 	port := envCfg.Port
 	version := envCfg.Version
-	authServiceURL := envCfg.AuthServiceURL
+	helloWorldServiceURL := envCfg.HelloWorldServiceURL
 	http.HandleFunc("/users", getUsers)
 	http.HandleFunc("/create", createUser)
-	http.HandleFunc("/login", loginUser(authServiceURL))
+	http.HandleFunc("/login", loginUser(helloWorldServiceURL))
 	http.HandleFunc("/", getInfo(version))
 
 	fmt.Printf("User service is listening on port %s\n", port)

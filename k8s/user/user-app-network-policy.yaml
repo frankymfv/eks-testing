@@ -1,0 +1,55 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: user-app-network-policy
+  namespace: user
+spec:
+  podSelector:
+    matchLabels:
+      app: user-app-pod
+  policyTypes:
+  - Egress
+  egress:
+  # Allow DNS resolution
+  - to: []
+    ports:
+    - protocol: UDP
+      port: 53
+  # Allow access to xinchao service in hello-world namespace
+  - to:
+    - namespaceSelector:
+        matchLabels:
+          name: hello-world
+      podSelector:
+        matchLabels:
+          app: xinchao-app-pod
+    ports:
+    - protocol: TCP
+      port: 8888
+  # Allow access to kube-dns service
+  - to:
+    - namespaceSelector:
+        matchLabels:
+          kubernetes.io/metadata.name: kube-system
+      podSelector:
+        matchLabels:
+          k8s-app: kube-dns
+    ports:
+    - protocol: UDP
+      port: 53
+    - protocol: TCP
+      port: 53
+  # Allow internet access (HTTP/HTTPS)
+  - to: []
+    ports:
+    - protocol: TCP
+      port: 80
+    - protocol: TCP
+      port: 443
+  # Allow common internet protocols
+  - to: []
+    ports:
+    - protocol: TCP
+      port: 8080
+    - protocol: TCP
+      port: 8443

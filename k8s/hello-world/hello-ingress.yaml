@@ -2,17 +2,20 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: helloworld-ingress
+  name: xinchao-ingress
+  namespace: hello-world
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
 spec:
   ingressClassName: nginx
   rules:
-    - host: hello-world.example
+    - host: xinchao.local
       http:
         paths:
           - path: /
             pathType: Prefix
             backend:
               service:
-                name: helloworld-app-service
+                name: xinchao-app-service
                 port:
                   number: 8889

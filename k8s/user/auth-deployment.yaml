@@ -1,29 +1,31 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: helloworld-app-deployment
+  name: auth-app-deployment
+  namespace: user
   labels:
-    app: helloworld-app-pod
+    app: auth-app-pod
 spec:
   replicas: 2
   selector:
     matchLabels:
-      app: helloworld-app-pod
+      app: auth-app-pod
   template:
     metadata:
       labels:
-        app: helloworld-app-pod
+        app: auth-app-pod
     spec:
       containers:
-      - name: helloworld-app-container-name
-        image: hbc08/k8s-helloworld:latest
+      - name: auth-app-container-name
+        image: hbc08/k8s-auth-app:latest
+        imagePullPolicy: Always
         ports:
-        - containerPort: 8888
+        - containerPort: 8765
         env:
         - name: PORT
-          value: "8888"
+          value: "8765"
         - name: VERSION
-          value: "3.3"
+          value: "3.0"
         resources:
           limits:
             cpu: "1"
